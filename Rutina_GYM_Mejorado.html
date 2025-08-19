@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rutina Gym - Seguimiento Completo</title>
+    <style>
+        :root {
+            --bg-dark: #121826;
+            --bg-card: #1E293B;
+            --primary: #3B82F6;
+            --primary-dark: #2563EB;
+            --text: #E2E8F0;
+            --text-secondary: #94A3B8;
+            --success: #10B981;
+            --danger: #EF4444;
+            --border: #334155;
+            --highlight: #7C3AED;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            position: relative;
+        }
+        
+        h1 {
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tab {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            border-bottom: 2px solid var(--primary);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .tab:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .day-selector {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .day-selector select {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background-color: var(--bg-card);
+            color: var(--text);
+            font-size: 14px;
+        }
+
+        .calendar {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .calendar input {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background-color: var(--bg-card);
+            color: var(--text);
+            font-size: 14px;
+        }
+
+        .exercise-container {
+            margin-bottom: 30px;
+        }
+        
+        .exercise-card {
+            background-color: var(--bg-card);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid var(--primary);
+            position: relative;
+        }
+
+        .history-card {
+            background-color: var(--bg-card);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid var(--highlight);
+        }
+
+        .history-date {
+            font-weight: 600;
+            color: var(--highlight);
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .exercise-info {
+            flex: 1;
+        }
+        
+        .exercise-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 18px;
+        }
+        
+        .exercise-details {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .detail-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 3px;
+        }
+        
+        .detail-value {
+            font-weight: 500;
+            color: var(--primary);
+        }
+        
+        .max-value {
+            font-size: 10px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        
+        .max-value:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+        
+        .complete-btn {
+            background: transparent;
+            border: 2px solid var(--border);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            margin-left: 15px;
+        }
+        
+        .complete-btn:hover {
+            border-color: var(--primary);
+        }
+        
+        .complete-btn.completed {
+            background-color: var(--success);
+            border-color: var(--success);
+        }
+        
+        .complete-btn.completed::after {
+            content: '✓';
+            color: white;
+            font-weight: bold;
+        }
+        
+        .editable {
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        
+        .editable:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+        
+        input, select {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        input.editable-input {
+            width: 60px;
+            padding: 2px 4px;
+        }
+        
+        .add-exercise {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+        
+        .add-exercise:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 12px;
+            cursor: pointer;
+            padding: 2px;
+            border-radius: 4px;
+            transition: color 0.2s;
+        }
+        
+        .delete-btn:hover {
+            color: var(--danger);
+        }
+        
+        .save-btn {
+            background-color: var(--success);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+        
+        .save-btn:hover {
+            background-color: #0e9c74;
+        }
+
+        .view-history-btn {
+            background-color: var(--highlight);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+
+        .view-history-btn:hover {
+            background-color: #6d28d9;
+        }
+
+        .history-container {
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .no-history {
+            text-align: center;
+            color: var(--text-secondary);
+            padding: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab {
+                padding: 10px;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .exercise-details {
+                gap: 8px;
+            }
+            
+            .exercise-name {
+                font-size: 16px;
+            }
+            
+            .detail-label {
+                font-size: 10px;
+            }
+            
+            .detail-value {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Rutina Gym</h1>
+            <p class="subtitle">Seguimiento completo de entrenamiento</p>
+        </header>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="rutina">Rutina Diaria</div>
+            <div class="tab" data-tab="historial">Historial</div>
+        </div>
+
+        <!-- Pestaña de Rutina Diaria -->
+        <div id="rutina" class="tab-content active">
+            <div class="day-selector">
+                <label for="day-select">Día de la semana:</label>
+                <select id="day-select">
+                    <option value="lunes">Lunes</option>
+                    <option value="martes">Martes</option>
+                    <option value="miércoles">Miércoles</option>
+                    <option value="jueves">Jueves</option>
+                    <option value="viernes">Viernes</option>
+                    <option value="sábado">Sábado</option>
+                    <option value="domingo">Domingo</option>
+                </select>
+            </div>
+
+            <div class="calendar">
+                <label for="calendar-input">Guardar para fecha:</label>
+                <input type="date" id="calendar-input">
+            </div>
+
+            <div class="exercise-container" id="exercise-container">
+                <!-- Los ejercicios se agregarán aquí dinámicamente -->
+            </div>
+            
+            <button class="add-exercise" id="add-exercise">+ Añadir Ejercicio</button>
+            <button class="save-btn" id="save-btn">Guardar Rutina</button>
+        </div>
+
+        <!-- Pestaña de Historial -->
+        <div id="historial" class="tab-content">
+            <div class="calendar">
+                <label for="history-date">Ver rutina de:</label>
+                <input type="date" id="history-date">
+                <button class="view-history-btn" id="view-history-btn">Buscar</button>
+            </div>
+
+            <div class="history-container" id="history-container">
+                <div class="no-history" id="no-history">
+                    Selecciona una fecha para ver tu rutina guardada
+                </div>
+                <!-- Las rutinas históricas se mostrarán aquí -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elementos del DOM
+            const exerciseContainer = document.getElementById('exercise-container');
+            const addExerciseBtn = document.getElementById('add-exercise');
+            const daySelect = document.getElementById('day-select');
+            const calendarInput = document.getElementById('calendar-input');
+            const saveBtn = document.getElementById('save-btn');
+            const historyDate = document.getElementById('history-date');
+            const viewHistoryBtn = document.getElementById('view-history-btn');
+            const historyContainer = document.getElementById('history-container');
+            const noHistory = document.getElementById('no-history');
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            let exerciseCount = 0;
+
+            // Cambiar entre pestañas
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    
+                    this.classList.add('active');
+                    document.getElementById(this.dataset.tab).classList.add('active');
+                });
+            });
+
+            // Cargar ejercicios del día seleccionado
+            function loadExercises() {
+                const selectedDay = daySelect.value;
+                const savedExercises = JSON.parse(localStorage.getItem(selectedDay)) || [];
+                exerciseContainer.innerHTML = ''; // Limpiar ejercicios actuales
+                exerciseCount = 0;
+
+                savedExercises.forEach((exercise, index) => {
+                    createExerciseCard(exercise.name, exercise.sets, exercise.reps, exercise.weight, exercise.max, exercise.completed, index + 1);
+                    exerciseCount = index + 1;
+                });
+            }
+
+            // Función para crear un nuevo ejercicio
+            function createExerciseCard(name = 'Nuevo ejercicio', sets = 3, reps = 10, weight = 0, max = 0, completed = false, id = exerciseCount + 1) {
+                exerciseCount = id;
+                const exerciseCard = document.createElement('div');
+                exerciseCard.className = 'exercise-card';
+                exerciseCard.innerHTML = `
+                    <button class="delete-btn" data-id="delete-${id}">×</button>
+                    <div class="exercise-info">
+                        <div class="exercise-name editable" data-id="name-${id}">${name}</div>
+                        <div class="exercise-details">
+                            <div class="detail-item">
+                                <span class="detail-label">Series</span>
+                                <span class="detail-value editable" data-id="sets-${id}">${sets}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Repeticiones</span>
+                                <span class="detail-value editable" data-id="reps-${id}">${reps}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Peso actual</span>
+                                <div>
+                                    <span class="detail-value editable" data-id="weight-${id}">${weight}</span>
+                                    <span class="max-value editable" data-id="max-${id}">Máx: ${max}kg</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="complete-btn" data-id="complete-${id}"></button>
+                `;
+                exerciseContainer.appendChild(exerciseCard);
+                
+                // Agregar eventos al nuevo ejercicio
+                setupEditableElements(exerciseCard);
+                setupCompleteButton(exerciseCard.querySelector('.complete-btn'));
+                setupDeleteButton(exerciseCard.querySelector('.delete-btn'), exerciseCard, id);
+                
+                // Marcar como completado si corresponde
+                if (completed) {
+                    exerciseCard.querySelector('.complete-btn').classList.add('completed');
+                }
+                
+                return exerciseCard;
+            }
+
+            // Función para configurar elementos editables
+            function setupEditableElements(container) {
+                const editableElements = container ? container.querySelectorAll('.editable') : document.querySelectorAll('.editable');
+                
+                editableElements.forEach(element => {
+                    element.addEventListener('click', function() {
+                        // Si ya hay un input activo, no hacer nada
+                        if (this.querySelector('input')) return;
+                        
+                        const currentValue = this.textContent.trim();
+                        let inputValue = currentValue;
+                        
+                        if (this.classList.contains('max-value')) {
+                            inputValue = currentValue.replace('Máx: ', '').replace('kg', '');
+                        }
+                        
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.value = inputValue;
+                        input.className = 'editable-input';
+                        
+                        // Reemplazar el contenido con el input
+                        this.innerHTML = '';
+                        this.appendChild(input);
+                        input.focus();
+                        
+                        // Guardar los cambios al perder el foco o presionar Enter
+                        const saveEdit = () => {
+                            let newValue = input.value;
+                            if (this.classList.contains('max-value')) {
+                                this.textContent = 'Máx: ' + newValue + 'kg';
+                            } else {
+                                this.textContent = newValue;
+                            }
+                            saveExercises();
+                        };
+                        
+                        input.addEventListener('blur', saveEdit);
+                        input.addEventListener('keypress', function(e) {
+                            if (e.key === 'Enter') {
+                                saveEdit();
+                            }
+                        });
+                    });
+                });
+            }
+
+            // Función para configurar botones de completado
+            function setupCompleteButton(button) {
+                button.addEventListener('click', function() {
+                    this.classList.toggle('completed');
+                    saveExercises();
+                });
+            }
+
+            // Función para configurar botones de eliminar
+            function setupDeleteButton(button, card, id) {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (confirm('¿Eliminar este ejercicio?')) {
+                        // Eliminar del DOM
+                        card.remove();
+                        saveExercises();
+                    }
+                });
+            }
+
+            // Guardar ejercicios en localStorage por día
+            function saveExercises() {
+                const selectedDay = daySelect.value;
+                const exercises = [];
+                const exerciseCards = exerciseContainer.querySelectorAll('.exercise-card');
+
+                exerciseCards.forEach((card, index) => {
+                    const exerciseId = index + 1;
+                    const name = card.querySelector(`[data-id="name-${exerciseId}"]`).textContent;
+                    const sets = card.querySelector(`[data-id="sets-${exerciseId}"]`).textContent;
+                    const reps = card.querySelector(`[data-id="reps-${exerciseId}"]`).textContent;
+                    const weight = card.querySelector(`[data-id="weight-${exerciseId}"]`).textContent;
+                    const maxElement = card.querySelector(`[data-id="max-${exerciseId}"]`);
+                    const max = maxElement ? maxElement.textContent.replace('Máx: ', '').replace('kg', '') : '0';
+                    const completed = card.querySelector('.complete-btn').classList.contains('completed');
+
+                    exercises.push({ name, sets, reps, weight, max, completed });
+                });
+
+                localStorage.setItem(selectedDay, JSON.stringify(exercises));
+            }
+
+            // Guardar rutina en la fecha seleccionada
+            saveBtn.addEventListener('click', function() {
+                const selectedDate = calendarInput.value;
+                if (!selectedDate) {
+                    alert('Por favor, selecciona una fecha.');
+                    return;
+                }
+
+                const exercises = JSON.parse(localStorage.getItem(daySelect.value)) || [];
+                const rutina = {
+                    fecha: selectedDate,
+                    dia: daySelect.value,
+                    ejercicios: exercises
+                };
+
+                // Obtener historial existente o crear uno nuevo
+                let historial = JSON.parse(localStorage.getItem('historial')) || [];
+                
+                // Eliminar si ya existe una entrada para esta fecha y día
+                historial = historial.filter(item => !(item.fecha === selectedDate && item.dia === daySelect.value));
+                
+                // Agregar la nueva entrada
+                historial.push(rutina);
+                
+                localStorage.setItem('historial', JSON.stringify(historial));
+                localStorage.setItem(selectedDate + '-' + daySelect.value, JSON.stringify(exercises));
+                
+                alert('Rutina guardada para el ' + formatDate(selectedDate));
+            });
+
+            // Función para mostrar el historial de una fecha
+            viewHistoryBtn.addEventListener('click', function() {
+                const selectedDate = historyDate.value;
+                if (!selectedDate) {
+                    alert('Por favor, selecciona una fecha.');
+                    return;
+                }
+
+                // Buscar en el historial
+                const historial = JSON.parse(localStorage.getItem('historial')) || [];
+                const rutinasDelDia = historial.filter(item => item.fecha === selectedDate);
+
+                if (rutinasDelDia.length === 0) {
+                    noHistory.textContent = 'No hay rutinas guardadas para esa fecha';
+                    noHistory.style.display = 'block';
+                    historyContainer.innerHTML = '';
+                    
+                    // Agregar el mensaje nuevamente (por si se había removido)
+                    if (!document.getElementById('no-history')) {
+                        historyContainer.appendChild(noHistory);
+                    }
+                    return;
+                }
+
+                noHistory.style.display = 'none';
+                historyContainer.innerHTML = '';
+
+                rutinasDelDia.forEach(rutina => {
+                    const historyEntry = document.createElement('div');
+                    historyEntry.className = 'history-card';
+                    
+                    const dateTitle = document.createElement('div');
+                    dateTitle.className = 'history-date';
+                    dateTitle.textContent = `${formatDate(rutina.fecha)} - ${rutina.dia.charAt(0).toUpperCase() + rutina.dia.slice(1)}`;
+                    historyEntry.appendChild(dateTitle);
+
+                    if (rutina.ejercicios && rutina.ejercicios.length > 0) {
+                        rutina.ejercicios.forEach(ejercicio => {
+                            const exerciseInfo = document.createElement('div');
+                            exerciseInfo.className = 'exercise-info';
+                            exerciseInfo.innerHTML = `
+                                <div class="exercise-name">${ejercicio.name}</div>
+                                <div class="exercise-details">
+                                    <div class="detail-item">
+                                        <span class="detail-label">Series:</span>
+                                        <span class="detail-value">${ejercicio.sets}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Repeticiones:</span>
+                                        <span class="detail-value">${ejercicio.reps}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Peso:</span>
+                                        <span class="detail-value">${ejercicio.weight}kg</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Máximo:</span>
+                                        <span class="detail-value">${ejercicio.max}kg</span>
+                                    </div>
+                                </div>
+                            `;
+                            historyEntry.appendChild(exerciseInfo);
+                        });
+                    }
+
+                    historyContainer.appendChild(historyEntry);
+                });
+            });
+
+            // Función para formatear la fecha
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('es-ES', { 
+                    day: '2-digit', 
+                    month: '2-digit', 
+                    year: 'numeric' 
+                });
+            }
+
+            // Botón para añadir nuevo ejercicio
+            addExerciseBtn.addEventListener('click', function() {
+                createExerciseCard();
+                saveExercises();
+            });
+
+            // Cargar ejercicios del día seleccionado
+            daySelect.addEventListener('change', loadExercises);
+
+            // Establecer la fecha actual por defecto en los calendarios
+            const today = new Date();
+            const dateString = today.toISOString().split('T')[0];
+            calendarInput.value = dateString;
+            historyDate.value = dateString;
+
+            // Inicializar
+            loadExercises();
+        });
+    </script>
+</body>
+</html>
